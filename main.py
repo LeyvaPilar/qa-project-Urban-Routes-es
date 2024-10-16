@@ -1,10 +1,18 @@
+import pytest
+import json
+import time
 import data
-from selenium import webdriver
-from selenium.webdriver import Keys
+from selenium.common import WebDriverException
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
+from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions
 
+
+
+driver = webdriver.Chrome()
 
 # no modificar
 def retrieve_phone_code(driver) -> str:
@@ -12,9 +20,6 @@ def retrieve_phone_code(driver) -> str:
     Utilízalo cuando la aplicación espere el código de confirmación para pasarlo a tus pruebas.
     El código de confirmación del teléfono solo se puede obtener después de haberlo solicitado en la aplicación."""
 
-    import json
-    import time
-    from selenium.common import WebDriverException
     code = None
     for i in range(10):
         try:
@@ -32,7 +37,6 @@ def retrieve_phone_code(driver) -> str:
             raise Exception("No se encontró el código de confirmación del teléfono.\n"
                             "Utiliza 'retrieve_phone_code' solo después de haber solicitado el código en tu aplicación.")
         return code
-
 
 class UrbanRoutesPage:
     from_field = (By.ID, 'from')
@@ -53,6 +57,9 @@ class UrbanRoutesPage:
     def get_to(self):
         return self.driver.find_element(*self.to_field).get_property('value')
 
+    def set_route(self, address_from, address_to):
+        self.driver.find_element(*self.from_field).send_keys(address_from)
+        self.driver.find_element(*self.to_field).send_keys(address_to)
 
 
 class TestUrbanRoutes:
@@ -62,14 +69,16 @@ class TestUrbanRoutes:
     @classmethod
     def setup_class(cls):
         # no lo modifiques, ya que necesitamos un registro adicional habilitado para recuperar el código de confirmación del teléfono
-        from selenium.webdriver import DesiredCapabilities
-        capabilities = DesiredCapabilities.CHROME
+        capabilities = DesiredCapabilities.CHROME.copy()
         capabilities["goog:loggingPrefs"] = {'performance': 'ALL'}
-        cls.driver = webdriver.Chrome(desired_capabilities=capabilities)
+        chrome_options = Options()
+        chrome_options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
+        cls.driver = webdriver.Chrome(options=chrome_options)
 
     def test_set_route(self):
         self.driver.get(data.urban_routes_url)
         routes_page = UrbanRoutesPage(self.driver)
+        WebDriverWait(self.driver, 3).until(expected_conditions.element_to_be_clickable(routes_page.from_field))}}
         address_from = data.address_from
         address_to = data.address_to
         routes_page.set_route(address_from, address_to)
@@ -80,3 +89,4 @@ class TestUrbanRoutes:
     @classmethod
     def teardown_class(cls):
         cls.driver.quit()
+
