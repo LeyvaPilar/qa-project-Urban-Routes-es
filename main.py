@@ -1,3 +1,5 @@
+from telnetlib import XAUTH
+
 import pytest
 import json
 import time
@@ -9,8 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-
-
+from selenium.webdriver.common.keys import Keys
 
 driver = webdriver.Chrome()
 
@@ -41,6 +42,24 @@ def retrieve_phone_code(driver) -> str:
 class UrbanRoutesPage:
     from_field = (By.ID, 'from')
     to_field = (By.ID, 'to')
+    div_personal = (By.XPATH, '//div[text()="Personal"]')
+    button_taxi = (By.XPATH, '//button[text()="Pedir un taxi"]')
+    div_tel = (By.XPATH, '//div[text()="Número de teléfono"]')
+    input_tel = (By.XPATH, '//input[@id="phone"]')
+    img_comfort = (By.XPATH, '(//img[@alt="Comfort"])[1]')
+    button_siguiente = (By.XPATH, '//button[text()="Siguiente"]')
+    input_code = (By.XPATH, '//input[@id="code"]')
+    button_confirmar = (By.XPATH, '//button[text()="Confirmar"]')
+    div_pago = (By.XPATH, '(//div[text()="Método de pago"])[2]')
+    div_tarjeta = (By.XPATH, '(//div[text()="Agregar tarjeta"])[1]')
+    input_tc_number = (By.XPATH, '//input[@id="number"]')
+    input_tc_cvv = (By.XPATH, "//input[@id='code' and @name='code' and @placeholder='12']")
+    button_agregar =(By.XPATH, '//button[text()="Agregar"]')
+    button_close = (By.XPATH, "(//button[@class='close-button section-close'])[3]")
+    input_comment =(By.XPATH, '//input[@id="comment"]')
+    checkbox_manta_panuelos = (By.XPATH, '(//input[@type="checkbox"])[2]')
+    div_requisitos_pedido = (By.XPATH, '//div[@class="reqs-arrow open"]')
+    div_cubeta_helado = (By.XPATH, '//div[text()="Cubeta de helado"]')
 
     def __init__(self, driver):
         self.driver = driver
@@ -61,6 +80,24 @@ class UrbanRoutesPage:
         self.driver.find_element(*self.from_field).send_keys(address_from)
         self.driver.find_element(*self.to_field).send_keys(address_to)
 
+    def wait_element_is_visible(self, locator):
+        WebDriverWait(self.driver, 5).until(expected_conditions.visibility_of_element_located(locator))
+
+    def click_element(self, locator):
+        self.wait_element_is_visible(locator)
+        self.driver.find_element(*locator).click()
+
+    def fill_input(self, locator, text):
+        self.driver.find_element(*locator).send_keys(text)
+
+    def press_tab(self, locator):
+        self.driver.find_element(*locator).send_keys(Keys.TAB)
+
+    def scroll_to_element(self, locator):
+        element = self.driver.find_element(*locator)
+        self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", element)
+        time.sleep(1)
+
 
 class TestUrbanRoutes:
 
@@ -75,15 +112,56 @@ class TestUrbanRoutes:
         chrome_options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
         cls.driver = webdriver.Chrome(options=chrome_options)
 
-    def test_set_route(self):
+    def fill_direction(self):
         self.driver.get(data.urban_routes_url)
         routes_page = UrbanRoutesPage(self.driver)
-        WebDriverWait(self.driver, 3).until(expected_conditions.element_to_be_clickable(routes_page.from_field))}}
-        address_from = data.address_from
-        address_to = data.address_to
-        routes_page.set_route(address_from, address_to)
-        assert routes_page.get_from() == address_from
-        assert routes_page.get_to() == address_to
+        # Wait element is visible
+        routes_page.wait_element_is_visible(routes_page.from_field)
+        # Fill form, from & to
+        routes_page.set_route(data.address_from, data.address_to)
+
+    def test_set_route(self):
+        self.fill_direction()
+
+        time.sleep(3)
+        self.driver.save_screenshot("test_set_route_1.png")
+
+        routes_page = UrbanRoutesPage(self.driver)
+        assert routes_page.get_from() == data.address_from
+        assert routes_page.get_to() == data.address_to
+
+    def test_select_comfort_rate(self):
+        self.fill_direction()
+        routes_page = UrbanRoutesPage(self.driver)
+
+        routes_page.click_element(routes_page.div_personal)
+        routes_page.click_element(routes_page.button_taxi)
+        routes_page.click_element(routes_page.img_comfort)
+        routes_page.click_element(routes_page.div_tel)
+        routes_page.fill_input(routes_page.input_tel, data.phone_number)
+        routes_page.click_element(routes_page.button_siguiente)
+
+        sms = retrieve_phone_code(self.driver)
+        routes_page.fill_input(routes_page.input_code, sms)
+
+        routes_page.click_element(routes_page.button_confirmar)
+        routes_page.click_element(routes_page.div_pago)
+        routes_page.click_element(routes_page.div_tarjeta)
+        routes_page.fill_input(routes_page.input_tc_number, data.card_number)
+        routes_page.press_tab(routes_page.input_tc_number)
+        routes_page.fill_input(routes_page.input_tc_cvv, data.card_code)
+        routes_page.click_element(routes_page.button_agregar)
+        routes_page.click_element(routes_page.button_close)
+        # Mensaje al controlador
+        routes_page.fill_input(routes_page.input_comment, data.message_for_driver)
+        # Click manta y pañuelos
+        routes_page.scroll_to_element(routes_page.div_requisitos_pedido)
+        routes_page.click_element(routes_page.div_requisitos_pedido)
+
+      
+
+        self.driver.save_screenshot('test_select_comfort_rate_3.png')
+        time.sleep(5)
 
 
     @classmethod
