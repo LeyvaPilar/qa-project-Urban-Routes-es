@@ -60,6 +60,8 @@ class UrbanRoutesPage:
     checkbox_manta_panuelos = 'input.switch-input'
     div_requisitos_pedido = (By.XPATH, '//div[@class="reqs-arrow open"]')
     div_cubeta_helado = (By.XPATH, '//div[text()="Cubeta de helado"]')
+    div_mas_helado = (By.XPATH, '(//div[@class="counter-plus"])[1]')
+    button_final = (By.XPATH, '//button[@class="smart-button"]')
 
     def __init__(self, driver):
         self.driver = driver
@@ -136,34 +138,46 @@ class TestUrbanRoutes:
     def test_select_comfort_rate(self):
         self.fill_direction()
         routes_page = UrbanRoutesPage(self.driver)
-
+        self.driver.save_screenshot("test_select_comfort_rate_1.png")
         routes_page.click_element(routes_page.div_personal)
         routes_page.click_element(routes_page.button_taxi)
         routes_page.click_element(routes_page.img_comfort)
         routes_page.click_element(routes_page.div_tel)
         routes_page.fill_input(routes_page.input_tel, data.phone_number)
         routes_page.click_element(routes_page.button_siguiente)
+        self.driver.save_screenshot("test_select_comfort_rate_2.png")
         # Sección para SMS
         sms = retrieve_phone_code(self.driver)
         routes_page.fill_input(routes_page.input_code, sms)
+        self.driver.save_screenshot("test_select_comfort_rate_3.png")
         routes_page.click_element(routes_page.button_confirmar)
         # Método de pago
         routes_page.click_element(routes_page.div_pago)
         routes_page.click_element(routes_page.div_tarjeta)
+        self.driver.save_screenshot("test_select_comfort_rate_4.png")
         # Modal TC
         routes_page.fill_input(routes_page.input_tc_number, data.card_number)
         routes_page.press_tab(routes_page.input_tc_number)
         routes_page.fill_input(routes_page.input_tc_cvv, data.card_code)
         routes_page.click_element(routes_page.button_agregar)
+        self.driver.save_screenshot("test_select_comfort_rate_5.png")
         routes_page.click_element(routes_page.button_close)
         # Mensaje al controlador
         routes_page.fill_input(routes_page.input_comment, data.message_for_driver)
         routes_page.press_tab(routes_page.input_comment)
+        self.driver.save_screenshot("test_select_comfort_rate_6.png")
         # Click manta y pañuelos - Aquí ya está abierta la sección "Requisitos del pedido"
         routes_page.click_checkbox_manta_panuelos()
+        # Click dos veces en el helado
+        routes_page.click_element(routes_page.div_mas_helado)
+        routes_page.click_element(routes_page.div_mas_helado)
+        self.driver.save_screenshot("test_select_comfort_rate_7.png")
+        #Click en boton final
+        routes_page.click_element(routes_page.button_final)
 
-        self.driver.save_screenshot('test_select_comfort_rate_3.png')
-        time.sleep(5)
+        self.driver.save_screenshot('test_select_comfort_rate_8.png')
+        time.sleep(35)
+        self.driver.save_screenshot("test_select_comfort_rate_9.png")
 
 
     @classmethod
