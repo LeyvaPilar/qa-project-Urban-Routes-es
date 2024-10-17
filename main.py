@@ -57,7 +57,7 @@ class UrbanRoutesPage:
     button_agregar =(By.XPATH, '//button[text()="Agregar"]')
     button_close = (By.XPATH, "(//button[@class='close-button section-close'])[3]")
     input_comment =(By.XPATH, '//input[@id="comment"]')
-    checkbox_manta_panuelos = (By.XPATH, '(//input[@type="checkbox"])[2]')
+    checkbox_manta_panuelos = 'input.switch-input'
     div_requisitos_pedido = (By.XPATH, '//div[@class="reqs-arrow open"]')
     div_cubeta_helado = (By.XPATH, '//div[text()="Cubeta de helado"]')
 
@@ -97,6 +97,9 @@ class UrbanRoutesPage:
         element = self.driver.find_element(*locator)
         self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", element)
         time.sleep(1)
+
+    def click_checkbox_manta_panuelos(self):
+        self.driver.execute_script("document.querySelector('" + self.checkbox_manta_panuelos + "').click()")
 
 
 class TestUrbanRoutes:
@@ -140,13 +143,14 @@ class TestUrbanRoutes:
         routes_page.click_element(routes_page.div_tel)
         routes_page.fill_input(routes_page.input_tel, data.phone_number)
         routes_page.click_element(routes_page.button_siguiente)
-
+        # Sección para SMS
         sms = retrieve_phone_code(self.driver)
         routes_page.fill_input(routes_page.input_code, sms)
-
         routes_page.click_element(routes_page.button_confirmar)
+        # Método de pago
         routes_page.click_element(routes_page.div_pago)
         routes_page.click_element(routes_page.div_tarjeta)
+        # Modal TC
         routes_page.fill_input(routes_page.input_tc_number, data.card_number)
         routes_page.press_tab(routes_page.input_tc_number)
         routes_page.fill_input(routes_page.input_tc_cvv, data.card_code)
@@ -154,11 +158,9 @@ class TestUrbanRoutes:
         routes_page.click_element(routes_page.button_close)
         # Mensaje al controlador
         routes_page.fill_input(routes_page.input_comment, data.message_for_driver)
-        # Click manta y pañuelos
-        routes_page.scroll_to_element(routes_page.div_requisitos_pedido)
-        routes_page.click_element(routes_page.div_requisitos_pedido)
-
-      
+        routes_page.press_tab(routes_page.input_comment)
+        # Click manta y pañuelos - Aquí ya está abierta la sección "Requisitos del pedido"
+        routes_page.click_checkbox_manta_panuelos()
 
         self.driver.save_screenshot('test_select_comfort_rate_3.png')
         time.sleep(5)
