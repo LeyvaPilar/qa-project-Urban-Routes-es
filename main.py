@@ -1,13 +1,14 @@
 from telnetlib import XAUTH
 
-import pytest
 import json
 import time
 import data
+import locators
+
 from selenium.common import WebDriverException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
+
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
@@ -40,47 +41,26 @@ def retrieve_phone_code(driver) -> str:
         return code
 
 class UrbanRoutesPage:
-    from_field = (By.ID, 'from')
-    to_field = (By.ID, 'to')
-    div_personal = (By.XPATH, '//div[text()="Personal"]')
-    button_taxi = (By.XPATH, '//button[text()="Pedir un taxi"]')
-    div_tel = (By.XPATH, '//div[text()="Número de teléfono"]')
-    input_tel = (By.XPATH, '//input[@id="phone"]')
-    img_comfort = (By.XPATH, '(//img[@alt="Comfort"])[1]')
-    button_siguiente = (By.XPATH, '//button[text()="Siguiente"]')
-    input_code = (By.XPATH, '//input[@id="code"]')
-    button_confirmar = (By.XPATH, '//button[text()="Confirmar"]')
-    div_pago = (By.XPATH, '(//div[text()="Método de pago"])[2]')
-    div_tarjeta = (By.XPATH, '(//div[text()="Agregar tarjeta"])[1]')
-    input_tc_number = (By.XPATH, '//input[@id="number"]')
-    input_tc_cvv = (By.XPATH, "//input[@id='code' and @name='code' and @placeholder='12']")
-    button_agregar =(By.XPATH, '//button[text()="Agregar"]')
-    button_close = (By.XPATH, "(//button[@class='close-button section-close'])[3]")
-    input_comment =(By.XPATH, '//input[@id="comment"]')
-    checkbox_manta_panuelos = 'input.switch-input'
-    div_requisitos_pedido = (By.XPATH, '//div[@class="reqs-arrow open"]')
-    div_cubeta_helado = (By.XPATH, '//div[text()="Cubeta de helado"]')
-    div_mas_helado = (By.XPATH, '(//div[@class="counter-plus"])[1]')
-    button_final = (By.XPATH, '//button[@class="smart-button"]')
 
     def __init__(self, driver):
         self.driver = driver
+        self.locators = locators.UrbanRoutesPage()
 
     def set_from(self, from_address):
-        self.driver.find_element(*self.from_field).send_keys(from_address)
+        self.driver.find_element(*self.locators.from_field).send_keys(from_address)
 
     def set_to(self, to_address):
-        self.driver.find_element(*self.to_field).send_keys(to_address)
+        self.driver.find_element(*self.locators.to_field).send_keys(to_address)
 
     def get_from(self):
-        return self.driver.find_element(*self.from_field).get_property('value')
+        return self.driver.find_element(*self.locators.from_field).get_property('value')
 
     def get_to(self):
-        return self.driver.find_element(*self.to_field).get_property('value')
+        return self.driver.find_element(*self.locators.to_field).get_property('value')
 
     def set_route(self, address_from, address_to):
-        self.driver.find_element(*self.from_field).send_keys(address_from)
-        self.driver.find_element(*self.to_field).send_keys(address_to)
+        self.driver.find_element(*self.locators.from_field).send_keys(address_from)
+        self.driver.find_element(*self.locators.to_field).send_keys(address_to)
 
     def wait_element_is_visible(self, locator):
         WebDriverWait(self.driver, 5).until(expected_conditions.visibility_of_element_located(locator))
@@ -101,7 +81,7 @@ class UrbanRoutesPage:
         time.sleep(1)
 
     def click_checkbox_manta_panuelos(self):
-        self.driver.execute_script("document.querySelector('" + self.checkbox_manta_panuelos + "').click()")
+        self.driver.execute_script("document.querySelector('" + self.locators.checkbox_manta_panuelos + "').click()")
 
 
 class TestUrbanRoutes:
@@ -121,7 +101,7 @@ class TestUrbanRoutes:
         self.driver.get(data.urban_routes_url)
         routes_page = UrbanRoutesPage(self.driver)
         # Wait element is visible
-        routes_page.wait_element_is_visible(routes_page.from_field)
+        routes_page.wait_element_is_visible(routes_page.locators.from_field)
         # Fill form, from & to
         routes_page.set_route(data.address_from, data.address_to)
 
@@ -139,41 +119,41 @@ class TestUrbanRoutes:
         self.fill_direction()
         routes_page = UrbanRoutesPage(self.driver)
         self.driver.save_screenshot("test_select_comfort_rate_1.png")
-        routes_page.click_element(routes_page.div_personal)
-        routes_page.click_element(routes_page.button_taxi)
-        routes_page.click_element(routes_page.img_comfort)
-        routes_page.click_element(routes_page.div_tel)
-        routes_page.fill_input(routes_page.input_tel, data.phone_number)
-        routes_page.click_element(routes_page.button_siguiente)
+        routes_page.click_element(routes_page.locators.div_personal)
+        routes_page.click_element(routes_page.locators.button_taxi)
+        routes_page.click_element(routes_page.locators.img_comfort)
+        routes_page.click_element(routes_page.locators.div_tel)
+        routes_page.fill_input(routes_page.locators.input_tel, data.phone_number)
+        routes_page.click_element(routes_page.locators.button_siguiente)
         self.driver.save_screenshot("test_select_comfort_rate_2.png")
         # Sección para SMS
         sms = retrieve_phone_code(self.driver)
-        routes_page.fill_input(routes_page.input_code, sms)
+        routes_page.fill_input(routes_page.locators.input_code, sms)
         self.driver.save_screenshot("test_select_comfort_rate_3.png")
-        routes_page.click_element(routes_page.button_confirmar)
+        routes_page.click_element(routes_page.locators.button_confirmar)
         # Método de pago
-        routes_page.click_element(routes_page.div_pago)
-        routes_page.click_element(routes_page.div_tarjeta)
+        routes_page.click_element(routes_page.locators.div_pago)
+        routes_page.click_element(routes_page.locators.div_tarjeta)
         self.driver.save_screenshot("test_select_comfort_rate_4.png")
         # Modal TC
-        routes_page.fill_input(routes_page.input_tc_number, data.card_number)
-        routes_page.press_tab(routes_page.input_tc_number)
-        routes_page.fill_input(routes_page.input_tc_cvv, data.card_code)
-        routes_page.click_element(routes_page.button_agregar)
+        routes_page.fill_input(routes_page.locators.input_tc_number, data.card_number)
+        routes_page.press_tab(routes_page.locators.input_tc_number)
+        routes_page.fill_input(routes_page.locators.input_tc_cvv, data.card_code)
+        routes_page.click_element(routes_page.locators.button_agregar)
         self.driver.save_screenshot("test_select_comfort_rate_5.png")
-        routes_page.click_element(routes_page.button_close)
+        routes_page.click_element(routes_page.locators.button_close)
         # Mensaje al controlador
-        routes_page.fill_input(routes_page.input_comment, data.message_for_driver)
-        routes_page.press_tab(routes_page.input_comment)
+        routes_page.fill_input(routes_page.locators.input_comment, data.message_for_driver)
+        routes_page.press_tab(routes_page.locators.input_comment)
         self.driver.save_screenshot("test_select_comfort_rate_6.png")
         # Click manta y pañuelos - Aquí ya está abierta la sección "Requisitos del pedido"
         routes_page.click_checkbox_manta_panuelos()
         # Click dos veces en el helado
-        routes_page.click_element(routes_page.div_mas_helado)
-        routes_page.click_element(routes_page.div_mas_helado)
+        routes_page.click_element(routes_page.locators.div_mas_helado)
+        routes_page.click_element(routes_page.locators.div_mas_helado)
         self.driver.save_screenshot("test_select_comfort_rate_7.png")
         #Click en boton final
-        routes_page.click_element(routes_page.button_final)
+        routes_page.click_element(routes_page.locators.button_final)
 
         self.driver.save_screenshot('test_select_comfort_rate_8.png')
         time.sleep(35)
