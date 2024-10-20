@@ -50,3 +50,11 @@ class UrbanRoutesPage:
 
     def wait_llegada_is_visible(self, locator):
         WebDriverWait(self.driver, 40).until(expected_conditions.visibility_of_element_located(locator))
+
+    def get_element_text(self, locator):
+        element = self.driver.find_element(*locator)
+        return element.get_attribute('innerHTML')
+
+    def get_element_value(self, locator):
+        element = self.driver.find_element(*locator)
+        return element.get_property('value')

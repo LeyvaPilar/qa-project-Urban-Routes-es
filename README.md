@@ -19,6 +19,14 @@ Este proyecto utiliza las siguientes bibliotecas de Python, que pueden instalars
 pip install selenium pytest
 ```
 
+## Execution code
+
+```bash
+pytest main.py
+``` 
+
+pytest folder/de/proyecto/tests.py
+
 ### Explicación adicional:
 
 - **`data.py`**: Este archivo centraliza los datos que se van a utilizar en las pruebas, lo que permite separar la lógica de los test de los datos en sí, facilitando la modificación y reutilización del código.
