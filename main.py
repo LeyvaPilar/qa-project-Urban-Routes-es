@@ -1,39 +1,13 @@
-import json
 import time
 import data
 import methods
+import funtions
 
-from selenium.common import WebDriverException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.chrome.options import Options
-
 from selenium import webdriver
 
 driver = webdriver.Chrome()
-
-# no modificar
-def retrieve_phone_code(driver) -> str:
-    """Este código devuelve un número de confirmación de teléfono y lo devuelve como un string.
-    Utilízalo cuando la aplicación espere el código de confirmación para pasarlo a tus pruebas.
-    El código de confirmación del teléfono solo se puede obtener después de haberlo solicitado en la aplicación."""
-
-    code = None
-    for i in range(10):
-        try:
-            logs = [log["message"] for log in driver.get_log('performance') if log.get("message")
-                    and 'api/v1/number?number' in log.get("message")]
-            for log in reversed(logs):
-                message_data = json.loads(log)["message"]
-                body = driver.execute_cdp_cmd('Network.getResponseBody',
-                                              {'requestId': message_data["params"]["requestId"]})
-                code = ''.join([x for x in body['body'] if x.isdigit()])
-        except WebDriverException:
-            time.sleep(1)
-            continue
-        if not code:
-            raise Exception("No se encontró el código de confirmación del teléfono.\n"
-                            "Utiliza 'retrieve_phone_code' solo después de haber solicitado el código en tu aplicación.")
-        return code
 
 class TestUrbanRoutes:
 
@@ -78,11 +52,11 @@ class TestUrbanRoutes:
         routes_page.click_element(routes_page.locators.button_siguiente)
         self.driver.save_screenshot("test_select_comfort_rate_2.png")
         # Sección para SMS
-        sms = retrieve_phone_code(self.driver)
+        sms = funtions.retrieve_phone_code(self.driver)
         routes_page.fill_input(routes_page.locators.input_code, sms)
         self.driver.save_screenshot("test_select_comfort_rate_3.png")
         routes_page.click_element(routes_page.locators.button_confirmar)
-        # Método de pago
+        # Metodo de pago
         routes_page.click_element(routes_page.locators.div_pago)
         routes_page.click_element(routes_page.locators.div_tarjeta)
         self.driver.save_screenshot("test_select_comfort_rate_4.png")
