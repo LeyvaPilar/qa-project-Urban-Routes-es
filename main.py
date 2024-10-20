@@ -81,7 +81,8 @@ class TestUrbanRoutes:
         routes_page.click_element(routes_page.locators.button_final)
 
         self.driver.save_screenshot('test_select_comfort_rate_8.png')
-        time.sleep(35)
+
+        routes_page.wait_llegada_is_visible(routes_page.locators.div_llegada)
         self.driver.save_screenshot("test_select_comfort_rate_9.png")
 
     @classmethod

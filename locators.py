@@ -23,3 +23,4 @@ class UrbanRoutesPage:
     div_cubeta_helado = (By.XPATH, '//div[text()="Cubeta de helado"]')
     div_mas_helado = (By.XPATH, '(//div[@class="counter-plus"])[1]')
     button_final = (By.XPATH, '//button[@class="smart-button"]')
+    div_llegada = (By.XPATH, '//div[@class="order-number"]')
