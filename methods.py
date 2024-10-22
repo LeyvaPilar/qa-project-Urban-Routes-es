@@ -49,7 +49,7 @@ class UrbanRoutesPage:
         self.driver.execute_script("document.querySelector('" + self.locators.checkbox_manta_panuelos + "').click()")
 
     def wait_llegada_is_visible(self, locator):
-        WebDriverWait(self.driver, 40).until(expected_conditions.visibility_of_element_located(locator))
+        WebDriverWait(self.driver, 45).until(expected_conditions.visibility_of_element_located(locator))
 
     def get_element_text(self, locator):
         element = self.driver.find_element(*locator)

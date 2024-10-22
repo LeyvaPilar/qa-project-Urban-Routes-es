@@ -16,12 +16,12 @@ class UrbanRoutesPage:
     input_tc_number = (By.XPATH, '//input[@id="number"]')
     input_tc_cvv = (By.XPATH, "//input[@id='code' and @name='code' and @placeholder='12']")
     button_agregar =(By.XPATH, '//button[text()="Agregar"]')
-    button_close = (By.XPATH, "(//button[@class='close-button section-close'])[3]")   # <----- Selector usando ClassName
-    input_comment =(By.XPATH, '//input[@id="comment"]')
-    checkbox_manta_panuelos = 'input.switch-input'   # <----- Selector usando CSS "switch-input" (es ClassName)
-    div_requisitos_pedido = (By.XPATH, '//div[@class="reqs-arrow open"]') # <----- Selector usando ClassName
+    button_close = (By.XPATH, "(//button[@class='close-button section-close'])[3]")
+    input_comment = (By.CSS_SELECTOR, 'input#comment')
+    checkbox_manta_panuelos = 'input.switch-input'
+    div_requisitos_pedido = (By.XPATH, '//div[@class="reqs-arrow open"]')
     div_cubeta_helado = (By.XPATH, '//div[text()="Cubeta de helado"]')
-    div_mas_helado = (By.XPATH, '(//div[@class="counter-plus"])[1]') # <----- Selector usando ClassName
-    button_final = (By.XPATH, '//button[@class="smart-button"]') # <----- Selector usando ClassName
-    div_llegada = (By.XPATH, '//div[@class="order-number"]') # <----- Selector usando ClassName
+    div_mas_helado = (By.CLASS_NAME, "counter-plus")
+    button_final = (By.CSS_SELECTOR, '.smart-button')
+    div_llegada = (By.CLASS_NAME, 'order-number')
     div_cantidad_helados = (By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]/div[2]/div[4]/div[2]/div[3]/div/div[2]/div[1]/div/div[2]/div/div[2]')
